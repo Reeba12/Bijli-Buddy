@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-// Solar lead API — sends Telegram notification + logs to console
-// Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env.local to activate
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// Solar lead API — sends ntfy.sh notification + logs to console
+// Set NTFY_TOPIC in .env.local to activate
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -16,28 +22,25 @@ export async function POST(req: NextRequest) {
     // Log to server console (visible in Vercel logs)
     console.log("[SOLAR LEAD]", { name, phone, bill, timestamp });
 
-    // Send Telegram notification if configured
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    // Save to Supabase
+    const { error: dbError } = await supabase
+      .from("lead-generation")
+      .insert({ name, phone_number: phone });
 
-    if (token && chatId) {
-      const message = [
-        "☀️ *New Solar Lead — BijliBuddy*",
-        "",
-        `👤 Name: ${name}`,
-        `📱 Phone: ${phone}`,
-        `💰 Monthly Bill: PKR ${bill.toLocaleString()}`,
-        `🕐 Time: ${timestamp}`,
-      ].join("\n");
+    if (dbError) console.error("[SOLAR LEAD DB ERROR]", dbError.message);
 
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    // Send ntfy.sh notification if configured
+    const topic = process.env.NTFY_TOPIC;
+
+    if (topic) {
+      await fetch(`https://ntfy.sh/${topic}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: "Markdown",
-        }),
+        headers: {
+          "Title": "New Solar Lead - BijliBuddy",
+          "Tags": "sunny,phone",
+          "Priority": "high",
+        },
+        body: `Name: ${name}\nPhone: ${phone}\nMonthly Bill: PKR ${bill?.toLocaleString() ?? "N/A"}\nTime: ${timestamp}`,
       });
     }
 

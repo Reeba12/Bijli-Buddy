@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-// Email/notify signup — sends Telegram notification + logs
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// Email/notify signup — sends ntfy.sh notification + logs
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -15,26 +21,25 @@ export async function POST(req: NextRequest) {
     // Log to server console (visible in Vercel logs)
     console.log("[NOTIFY SIGNUP]", { email, timestamp });
 
-    // Send Telegram notification if configured
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    // Save to Supabase
+    const { error: dbError } = await supabase
+      .from("lead-generation")
+      .insert({ email });
 
-    if (token && chatId) {
-      const message = [
-        "📬 *New Tariff Alert Signup — BijliBuddy*",
-        "",
-        `📧 Email: ${email}`,
-        `🕐 Time: ${timestamp}`,
-      ].join("\n");
+    if (dbError) console.error("[NOTIFY SIGNUP DB ERROR]", dbError.message);
 
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    // Send ntfy.sh notification if configured
+    const topic = process.env.NTFY_TOPIC;
+
+    if (topic) {
+      await fetch(`https://ntfy.sh/${topic}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: "Markdown",
-        }),
+        headers: {
+          "Title": "New Tariff Alert Signup - BijliBuddy",
+          "Tags": "email,bell",
+          "Priority": "default",
+        },
+        body: `Email: ${email}\nTime: ${timestamp}`,
       });
     }
 

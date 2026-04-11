@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -51,24 +52,11 @@ export default function RootLayout({
             }}
           />
         )}
-        {/* Google Analytics — paste your GA4 measurement ID in .env.local */}
-        {process.env.NEXT_PUBLIC_GA_ID && (
-          <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`} />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
-                `,
-              }}
-            />
-          </>
-        )}
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
