@@ -684,6 +684,7 @@ export default function Home() {
           )}
         </div>
 
+
         <footer className="text-center pb-8 pt-2 space-y-1" style={{ color: "rgba(255,255,255,0.12)", fontSize: "11px" }}>
           <p className="font-semibold" style={{ fontFamily: PP }}>BijliBuddy · K-Electric Bill Estimator · Karachi</p>
           <p>Rates per SRO 279(I)/2026, effective Feb 12, 2026. Results are estimates only.</p>
@@ -790,6 +791,7 @@ function BillShockSection({ meterType, sanctionedLoad, fpaRate }: { meterType: M
 function SolarCTA({ bill }: { bill: number }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [solarFeedback, setSolarFeedback] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -820,7 +822,7 @@ function SolarCTA({ bill }: { bill: number }) {
               await fetch("/api/solar-lead", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, phone, bill }),
+                body: JSON.stringify({ name, phone, bill, feedback: solarFeedback.trim() }),
               });
             } catch (_) { /* still mark submitted */ }
             setLoading(false);
@@ -834,6 +836,12 @@ function SolarCTA({ bill }: { bill: number }) {
             <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
               placeholder="Phone number (0312-1234567)" required
               className="w-full rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all"
+              style={{ fontFamily: "var(--font-poppins)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}
+            />
+            <textarea value={solarFeedback} onChange={(e) => setSolarFeedback(e.target.value)}
+              placeholder="Any feedback? (optional — kya acha laga, kya missing hai...)"
+              rows={2}
+              className="w-full rounded-xl px-4 py-3 text-sm text-white focus:outline-none resize-none transition-all"
               style={{ fontFamily: "var(--font-poppins)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}
             />
             <button type="submit" disabled={loading}

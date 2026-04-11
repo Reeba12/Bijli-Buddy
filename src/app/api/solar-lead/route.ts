@@ -11,7 +11,7 @@ const supabase = createClient(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, phone, bill } = body as { name: string; phone: string; bill: number };
+    const { name, phone, bill, feedback } = body as { name: string; phone: string; bill: number; feedback?: string };
 
     if (!name || !phone) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     // Save to Supabase
     const { error: dbError } = await supabase
       .from("lead-generation")
-      .insert({ name, phone_number: phone });
+      .insert({ name, phone_number: phone, feedback: feedback || null });
 
     if (dbError) console.error("[SOLAR LEAD DB ERROR]", dbError.message);
 
