@@ -123,8 +123,59 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-poppins), 'Segoe UI', system-ui, sans-serif;
   }
-  html {
-    @apply font-sans;
+  h1, h2, h3, h4, h5, h6, button, input, label, p, span {
+    font-family: var(--font-poppins), system-ui, sans-serif;
   }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom input number spinner hide */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Glassmorphism card effect */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Glow effect for total bill */
+.bill-glow {
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.3), 0 0 80px rgba(59, 130, 246, 0.1);
+}
+
+/* Animated gradient background */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-bg {
+  background: linear-gradient(-45deg, #0f172a, #0c1a3a, #0f2057, #0a1628);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Pulse for peak badge */
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.peak-pulse {
+  animation: subtlePulse 2s ease-in-out infinite;
 }
