@@ -1,0 +1,20 @@
+{
+  "name": "BijliBuddy — K-Electric Bill Calculator",
+  "short_name": "BijliBuddy",
+  "description": "Free K-Electric electricity bill calculator for Karachi. Instant breakdown by slab, appliance costs, and solar savings.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060d1f",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "finance"],
+  "lang": "en-PK"
+}

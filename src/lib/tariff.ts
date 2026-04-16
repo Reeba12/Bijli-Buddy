@@ -7,10 +7,10 @@ export type CustomerType = "protected" | "non-protected";
 
 export interface ApplianceInput {
   name: string;
-  watts: number;
+  kw: number;          // kilowatts (e.g. 1.5 for a 1500W AC)
   quantity: number;
   hoursPerDay: number;
-  dutyCycle?: number; // 0-1, for fridge/AC etc.
+  dutyCycle?: number;  // 0-1, for fridge/AC etc.
 }
 
 export interface SlabResult {
@@ -146,7 +146,7 @@ export function applySlabs(units: number, customerType: CustomerType): SlabResul
 export function calculateUnitsFromAppliances(appliances: ApplianceInput[]): number {
   return appliances.reduce((total, a) => {
     const duty = a.dutyCycle ?? 1;
-    const dailyKwh = (a.watts * a.quantity * a.hoursPerDay * duty) / 1000;
+    const dailyKwh = a.kw * a.quantity * a.hoursPerDay * duty;
     return total + dailyKwh * 30;
   }, 0);
 }
@@ -236,7 +236,7 @@ export function calculateBill(params: {
   const totalApplianceUnits = calculateUnitsFromAppliances(appliances);
   const applianceBreakdown: ApplianceBreakdown[] = appliances.map((a) => {
     const duty = a.dutyCycle ?? 1;
-    const units = ((a.watts * a.quantity * a.hoursPerDay * duty) / 1000) * 30;
+    const units = a.kw * a.quantity * a.hoursPerDay * duty * 30;
     const percentage = totalApplianceUnits > 0 ? (units / totalApplianceUnits) * 100 : 0;
     const cost = totalBill > 0 ? (percentage / 100) * totalBill : 0;
     return { name: a.name, units: Math.round(units), cost: Math.round(cost), percentage: Math.round(percentage) };
